@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Quilometragem - Rotas de Vendas</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet.js (Mapas) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Chart.js (Gráficos) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Estilo Customizado -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Cabeçalho -->
+        <header>
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <div class="title-area">
+                    <h1>Roteirizador & Km de Vendedores</h1>
+                    <p>Análise de distâncias percorridas com base nas visitas de clientes</p>
+                </div>
+            </div>
+            
+            <!-- Controles de Filtros -->
+            <div class="filters-area">
+                <div class="filter-group">
+                    <label for="filter-vendedor">Vendedor</label>
+                    <select id="filter-vendedor">
+                        <option value="todos">-- Todos os Vendedores --</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filter-semana">Semana</script></label>
+                    <select id="filter-semana">
+                        <option value="todas">-- Todas as Semanas --</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filter-dia">Dia específico</label>
+                    <select id="filter-dia" disabled>
+                        <option value="todos">-- Selecione um Vendedor/Semana --</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <!-- Cartões de KPIs -->
+        <section class="kpi-grid">
+            <div class="kpi-card cyan">
+                <div class="kpi-info">
+                    <span class="kpi-label">Distância Total Percorrida</span>
+                    <span class="kpi-value" id="kpi-total-km">0.00 km</span>
+                </div>
+                <div class="kpi-icon">
+                    <i class="fa-solid fa-route"></i>
+                </div>
+            </div>
+            
+            <div class="kpi-card green">
+                <div class="kpi-info">
+                    <span class="kpi-label">Total de Visitas</span>
+                    <span class="kpi-value" id="kpi-total-visitas">0</span>
+                </div>
+                <div class="kpi-icon">
+                    <i class="fa-solid fa-handshake"></i>
+                </div>
+            </div>
+            
+            <div class="kpi-card purple">
+                <div class="kpi-info">
+                    <span class="kpi-label">Média Diária Ativa</span>
+                    <span class="kpi-value" id="kpi-media-dia">0.00 km</span>
+                </div>
+                <div class="kpi-icon">
+                    <i class="fa-solid fa-calendar-day"></i>
+                </div>
+            </div>
+            
+            <div class="kpi-card orange">
+                <div class="kpi-info">
+                    <span class="kpi-label">Média por Visita</span>
+                    <span class="kpi-value" id="kpi-media-visita">0.00 km</span>
+                </div>
+                <div class="kpi-icon">
+                    <i class="fa-solid fa-location-arrow"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grade Principal (Mapa e Estatísticas) -->
+        <main class="main-grid">
+            <!-- Container do Mapa -->
+            <div class="card-container">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-map-location"></i> Mapa de Rotas e Localizações</h2>
+                    <span class="badge" id="map-badge">Visão Geral</span>
+                </div>
+                <div class="map-wrapper">
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <!-- Gráficos de Estatísticas -->
+            <div class="card-container">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-chart-simple"></i> Estatísticas e Desempenho</h2>
+                    <div class="stats-tabs">
+                        <button class="tab-btn active" onclick="switchTab('vendedores')">Vendedores</button>
+                        <button class="tab-btn" onclick="switchTab('semanal')">Semanal</button>
+                        <button class="tab-btn" onclick="switchTab('diario')">Diário</button>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="stats-chart"></canvas>
+                </div>
+            </div>
+        </main>
+
+        <!-- Painel de Detalhes da Rota -->
+        <section class="details-container">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-list-check"></i> Sequência Detalhada de Visitas da Rota</h2>
+                <span class="badge" id="route-details-badge">Nenhum dia selecionado</span>
+            </div>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Seq.</th>
+                            <th>Cliente</th>
+                            <th>CNPJ</th>
+                            <th style="width: 140px;">Tipo de Visita</th>
+                            <th>Coordenadas</th>
+                            <th style="width: 150px; text-align: right;">Km do Trecho</th>
+                            <th style="width: 150px; text-align: right;">Km Acumulado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="route-table-body">
+                        <!-- Gerado Dinamicamente -->
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    <p>Selecione um <strong>Vendedor</strong> e um <strong>Dia específico</strong> nos filtros acima para visualizar a sequência ordenada do trajeto.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Painel Desenvolvido para Cálculo de Quilometragem com Base em Coordenadas Geográficas &copy; 2026. Feito com <i class="fa-solid fa-heart" style="color: #ff4a4a;"></i> em Português.</p>
+    </footer>
+
+    <!-- Carrega os dados pré-calculados do processador Python -->
+    <script src="data.js"></script>
+    
+    <!-- Script Principal -->
+    <script src="app.js"></script>
+</body>
+</html>
