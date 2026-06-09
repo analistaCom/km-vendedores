@@ -45,9 +45,16 @@
                         <option value="todos">-- Todos os Vendedores --</option>
                     </select>
                 </div>
+
+                <div class="filter-group">
+                    <label for="filter-mes">Mês</label>
+                    <select id="filter-mes">
+                        <option value="todos">-- Todos os Meses --</option>
+                    </select>
+                </div>
                 
                 <div class="filter-group">
-                    <label for="filter-semana">Semana</script></label>
+                    <label for="filter-semana">Semana</label>
                     <select id="filter-semana">
                         <option value="todas">-- Todas as Semanas --</option>
                     </select>
@@ -145,19 +152,20 @@
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 80px;">Seq.</th>
+                            <th style="width: 60px;">Seq.</th>
                             <th>Cliente</th>
                             <th>CNPJ</th>
-                            <th style="width: 140px;">Tipo de Visita</th>
+                            <th style="width: 120px;">Tipo de Visita</th>
                             <th>Coordenadas</th>
-                            <th style="width: 150px; text-align: right;">Km do Trecho</th>
-                            <th style="width: 150px; text-align: right;">Km Acumulado</th>
+                            <th style="width: 120px; text-align: right;">Km do Trecho</th>
+                            <th style="width: 120px; text-align: right;">Km Acumulado</th>
+                            <th style="width: 90px; text-align: center;">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="route-table-body">
                         <!-- Gerado Dinamicamente -->
                         <tr>
-                            <td colspan="7">
+                            <td colspan="8">
                                 <div class="empty-state">
                                     <i class="fa-solid fa-circle-info"></i>
                                     <p>Selecione um <strong>Vendedor</strong> e um <strong>Dia específico</strong> nos filtros acima para visualizar a sequência ordenada do trajeto.</p>
