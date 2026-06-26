@@ -215,6 +215,8 @@ def main():
     print("Carregando arquivo CSV...")
     # Lê o CSV especificando separador e decimal
     df = pd.read_csv(csv_file, sep=';', decimal=',')
+    df.dropna(subset=['VEND', 'CNPJ', 'CLIENTE', 'DIA', 'LATITUDE', 'LONGITUDE'], how='any', inplace=True)
+    df = df[df['VEND'].astype(str).str.strip() != '']
     df['DIA'] = pd.to_datetime(df['DIA'], format='%d/%m/%Y')
     
     # Aplica limpeza de outliers
